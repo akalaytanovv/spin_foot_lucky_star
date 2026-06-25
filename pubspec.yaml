@@ -1,0 +1,25 @@
+name: spin_foot_lucky_star
+description: "A new Flutter project."
+publish_to: 'none'
+version: 0.1.0+1
+
+environment:
+  sdk: ^3.11.0
+
+dependencies:
+  audioplayers: ^5.2.1
+  flutter:
+    sdk: flutter
+  in_app_purchase: ^3.1.13
+  provider: ^6.1.5+1
+  shared_preferences: ^2.2.3
+  url_launcher: ^6.3.0
+  vibration: ^3.1.8
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
