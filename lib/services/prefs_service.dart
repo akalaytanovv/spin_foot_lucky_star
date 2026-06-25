@@ -53,6 +53,8 @@ class PrefsService {
   Future<void> setLastWheelSpin(DateTime value) =>
       _prefs.setString('lastWheelSpin', value.toIso8601String());
 
+  Future<void> clearLastWheelSpin() => _prefs.remove('lastWheelSpin');
+
   // ── Bonus ────────────────────────────────────────────────────────────────
 
   int get bonusPercent => _prefs.getInt('bonusPercent') ?? 0;

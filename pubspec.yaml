@@ -23,3 +23,8 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/wheel_outside.png
+    - assets/wheel_inside.png
+    - assets/wheel_top.png
+    - assets/wheel_example.png

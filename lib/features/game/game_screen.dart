@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../shared/widgets/bet_panel_widget.dart';
 import '../../shared/widgets/result_overlay_widget.dart';
+import '../../shared/widgets/wheel_timer_widget.dart';
 import 'game_provider.dart';
 
 class GameScreen extends StatelessWidget {
@@ -84,6 +85,8 @@ class _TopBar extends StatelessWidget {
             ),
           ),
           const Spacer(),
+          const WheelTimerWidget(),
+          const SizedBox(width: 4),
           IconButton(
             icon: const Icon(Icons.settings_outlined),
             tooltip: 'Settings',

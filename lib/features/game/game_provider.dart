@@ -59,6 +59,12 @@ class GameProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void addToBalance(int amount) {
+    _balance += amount;
+    PrefsService.instance.setBalance(_balance);
+    notifyListeners();
+  }
+
   // ── Round ─────────────────────────────────────────────────────────────────
 
   void startRound() {

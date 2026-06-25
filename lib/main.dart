@@ -45,6 +45,9 @@ void main() async {
     };
 
     await PrefsService.instance.init();
+    if (kDebugMode) {
+      await PrefsService.instance.clearLastWheelSpin();
+    }
     await AudioService.instance.init();
     runApp(const SpinFootApp());
   }, (error, stack) => _logError(error, stack));
