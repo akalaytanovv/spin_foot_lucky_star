@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../shared/widgets/app_background.dart';
 import 'widgets/splash_body.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -34,10 +35,8 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: SplashBody(animation: _controller),
-      ),
+    return AppBackground(
+      child: SplashBody(animation: _controller),
     );
   }
 }

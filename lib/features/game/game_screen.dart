@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../shared/widgets/app_background.dart';
 import '../../shared/widgets/bet_panel_widget.dart';
 import '../../shared/widgets/result_overlay_widget.dart';
 import 'game_provider.dart';
@@ -18,8 +19,8 @@ class GameScreen extends StatelessWidget {
     final game = context.watch<GameProvider>();
     final showOverlay = game.state == RoundState.cashedOut || game.state == RoundState.crashed;
 
-    return Scaffold(
-      body: SafeArea(
+    return AppBackground(
+      child: SafeArea(
         child: Stack(
           children: [
             Column(

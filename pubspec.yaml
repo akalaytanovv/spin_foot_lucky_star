@@ -39,3 +39,6 @@ flutter:
     - assets/wheel.png
     - assets/settings.png
     - assets/button.png
+    - assets/background.png
+    - assets/logo.png
+    - assets/splash_logo.png

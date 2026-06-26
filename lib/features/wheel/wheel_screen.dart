@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../services/audio_service.dart';
+import '../../shared/widgets/app_background.dart';
 import '../game/game_provider.dart';
 import 'wheel_provider.dart';
 import 'widgets/spin_button.dart';
@@ -116,9 +117,14 @@ class _WheelScreenState extends State<WheelScreen> with SingleTickerProviderStat
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Wheel of Fortune'), centerTitle: true),
-      body: SafeArea(
+    return AppBackground(
+      appBar: AppBar(
+        title: const Text('Wheel of Fortune'),
+        centerTitle: true,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+      ),
+      child: SafeArea(
         child: Column(
           children: [
             Expanded(
@@ -139,10 +145,7 @@ class _WheelScreenState extends State<WheelScreen> with SingleTickerProviderStat
             const SizedBox(height: 16),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 32),
-              child: SpinButton(
-                isAnimating: _isAnimating,
-                onPressed: _onSpinPressed,
-              ),
+              child: SpinButton(isAnimating: _isAnimating, onPressed: _onSpinPressed),
             ),
             const SizedBox(height: 32),
           ],

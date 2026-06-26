@@ -63,12 +63,34 @@ class SpinFootApp extends StatelessWidget {
         title: 'Spin Foot Lucky Star',
         debugShowCheckedModeBanner: false,
         initialRoute: '/',
-        routes: {
-          '/': (context) => const SplashScreen(),
-          '/lets_play': (context) => const LetsPlayScreen(),
-          '/game': (context) => const GameScreen(),
-          '/wheel': (context) => const WheelScreen(),
-          '/settings': (context) => const SettingsScreen(),
+        onGenerateRoute: (settings) {
+          final Widget page = switch (settings.name) {
+            '/lets_play' => const LetsPlayScreen(),
+            '/game' => const GameScreen(),
+            '/wheel' => const WheelScreen(),
+            '/settings' => const SettingsScreen(),
+            _ => const SplashScreen(),
+          };
+          return PageRouteBuilder(
+            settings: settings,
+            pageBuilder: (_, __, ___) => page,
+            transitionDuration: const Duration(milliseconds: 300),
+            reverseTransitionDuration: const Duration(milliseconds: 250),
+            transitionsBuilder: (_, animation, secondaryAnimation, child) {
+              final slideIn = Tween<Offset>(
+                begin: const Offset(1.0, 0.0),
+                end: Offset.zero,
+              ).animate(CurvedAnimation(parent: animation, curve: Curves.easeInOut));
+              final slideOut = Tween<Offset>(
+                begin: Offset.zero,
+                end: const Offset(-0.3, 0.0),
+              ).animate(CurvedAnimation(parent: secondaryAnimation, curve: Curves.easeInOut));
+              return SlideTransition(
+                position: slideOut,
+                child: SlideTransition(position: slideIn, child: child),
+              );
+            },
+          );
         },
       ),
     );
