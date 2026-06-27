@@ -42,6 +42,16 @@ class PrefsService {
   Future<void> setVibrationEnabled(bool value) =>
       _prefs.setBool('vibrationEnabled', value);
 
+  double get soundVolume => _prefs.getDouble('soundVolume') ?? 1.0;
+
+  Future<void> setSoundVolume(double value) =>
+      _prefs.setDouble('soundVolume', value);
+
+  double get musicVolume => _prefs.getDouble('musicVolume') ?? 1.0;
+
+  Future<void> setMusicVolume(double value) =>
+      _prefs.setDouble('musicVolume', value);
+
   // ── Wheel ────────────────────────────────────────────────────────────────
 
   /// Returns null if the wheel has never been spun.

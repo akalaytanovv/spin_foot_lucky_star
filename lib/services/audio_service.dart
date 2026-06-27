@@ -13,9 +13,6 @@ class AudioService with WidgetsBindingObserver {
   late final AudioPlayer _fxPlayer;
   late final AudioPlayer _spinPlayer;
 
-  bool _musicEnabled = true;
-  bool _fxEnabled = true;
-
   /// True when music was playing at the moment the app went to background.
   /// Reset on resume or on any intentional stop/play.
   bool _wasPlayingBeforePause = false;
@@ -24,8 +21,8 @@ class AudioService with WidgetsBindingObserver {
   /// Android kills the audio stream entirely instead of just pausing it.
   String? _lastBgAsset;
 
-  /// Tracks the spin player's current volume so [stopSpin] always fades from
-  /// the actual level rather than assuming 1.0.
+  /// Tracks the spin player's current volume during fade-out so [stopSpin]
+  /// always fades from the actual in-flight level, not from a stale value.
   double _spinVolume = 1.0;
 
   Timer? _fadeTimer;
@@ -33,9 +30,6 @@ class AudioService with WidgetsBindingObserver {
   // ── Init ─────────────────────────────────────────────────────────────────
 
   Future<void> init() async {
-    _musicEnabled = PrefsService.instance.soundEnabled;
-    _fxEnabled = PrefsService.instance.fxEnabled;
-
     await AudioPlayer.global.setAudioContext(
       const AudioContext(
         android: AudioContextAndroid(
@@ -51,6 +45,15 @@ class AudioService with WidgetsBindingObserver {
     _bgPlayer = AudioPlayer();
     _fxPlayer = AudioPlayer();
     _spinPlayer = AudioPlayer();
+
+    // Apply saved volume preferences immediately so the first playback
+    // matches the user's settings without needing a slider interaction.
+    final sv = PrefsService.instance.soundVolume;
+    final mv = PrefsService.instance.musicVolume;
+    await _bgPlayer.setVolume(mv);
+    await _fxPlayer.setVolume(sv);
+    await _spinPlayer.setVolume(sv);
+    _spinVolume = sv;
 
     WidgetsBinding.instance.addObserver(this);
   }
@@ -68,7 +71,7 @@ class AudioService with WidgetsBindingObserver {
           _bgPlayer.pause();
         }
       case AppLifecycleState.resumed:
-        if (_wasPlayingBeforePause && _musicEnabled) {
+        if (_wasPlayingBeforePause) {
           _wasPlayingBeforePause = false;
           // Android may have killed the stream (stopped instead of paused).
           if (_bgPlayer.state == PlayerState.paused) {
@@ -84,12 +87,8 @@ class AudioService with WidgetsBindingObserver {
 
   // ── Background music ──────────────────────────────────────────────────────
 
-  /// Starts looping background music from [asset].
-  /// Call this again to switch tracks.
-  /// Note: [setMusicEnabled] only toggles the flag — the caller must invoke
-  /// this method explicitly when re-enabling music.
+  /// Starts looping background music from [asset]. Call again to switch tracks.
   Future<void> playBackground(String asset) async {
-    if (!_musicEnabled) return;
     _lastBgAsset = asset;
     _wasPlayingBeforePause = false;
     await _bgPlayer.setReleaseMode(ReleaseMode.loop);
@@ -108,7 +107,6 @@ class AudioService with WidgetsBindingObserver {
   }
 
   Future<void> resumeBackground() async {
-    if (!_musicEnabled) return;
     _wasPlayingBeforePause = false;
     if (_bgPlayer.state == PlayerState.paused) {
       await _bgPlayer.resume();
@@ -120,19 +118,17 @@ class AudioService with WidgetsBindingObserver {
   // ── FX ───────────────────────────────────────────────────────────────────
 
   Future<void> playWin() async {
-    if (!_fxEnabled) return;
     await _fxPlayer.play(AssetSource('audio/win.mp3'));
   }
 
   Future<void> playLose() async {
-    if (!_fxEnabled) return;
     await _fxPlayer.play(AssetSource('audio/lose.mp3'));
   }
 
   Future<void> playSpin() async {
-    if (!_fxEnabled) return;
     _fadeTimer?.cancel();
-    _spinVolume = 1.0;
+    // Read the current user preference so each spin starts at the correct level.
+    _spinVolume = PrefsService.instance.soundVolume;
     await _spinPlayer.setReleaseMode(ReleaseMode.loop);
     await _spinPlayer.setVolume(_spinVolume);
     await _spinPlayer.play(AssetSource('audio/spin.mp3'));
@@ -153,8 +149,11 @@ class AudioService with WidgetsBindingObserver {
         timer.cancel();
         _spinVolume = 0;
         await _spinPlayer.stop();
-        _spinVolume = 1.0;
-        await _spinPlayer.setVolume(1.0);
+        // Restore to the user's saved preference so the next playSpin
+        // picks up the right starting volume.
+        final restored = PrefsService.instance.soundVolume;
+        _spinVolume = restored;
+        await _spinPlayer.setVolume(restored);
       } else {
         await _spinPlayer.setVolume(_spinVolume);
       }
@@ -163,21 +162,16 @@ class AudioService with WidgetsBindingObserver {
 
   // ── Settings ─────────────────────────────────────────────────────────────
 
-  /// Disables music and stops playback immediately.
-  /// When re-enabling, the caller is responsible for calling [playBackground].
-  Future<void> setMusicEnabled(bool enabled) async {
-    _musicEnabled = enabled;
-    if (!enabled) {
-      await stopBackground();
-    }
+  Future<void> setSoundVolume(double volume) async {
+    // Cancel any in-progress fade so its timer doesn't overwrite this value.
+    _fadeTimer?.cancel();
+    _spinVolume = volume;
+    await _fxPlayer.setVolume(volume);
+    await _spinPlayer.setVolume(volume);
   }
 
-  Future<void> setFxEnabled(bool enabled) async {
-    _fxEnabled = enabled;
-    if (!enabled) {
-      await _fxPlayer.stop();
-      await stopSpin();
-    }
+  Future<void> setMusicVolume(double volume) async {
+    await _bgPlayer.setVolume(volume);
   }
 
   // ── Dispose ───────────────────────────────────────────────────────────────
