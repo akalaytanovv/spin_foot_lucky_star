@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class WheelPainter extends CustomPainter {
   final double angle;
@@ -53,9 +54,10 @@ class WheelPainter extends CustomPainter {
         text: TextSpan(
           text: label,
           style: TextStyle(
+            fontFamily: GoogleFonts.roboto().fontFamily,
             color: const Color(0xFF1A3A1A),
-            fontSize: radius * 0.10,
-            fontWeight: FontWeight.bold,
+            fontSize: 14,
+            fontWeight: FontWeight.w800,
             // height < 1.0 tightens multi-line spacing without negative values
             height: 0.85,
           ),

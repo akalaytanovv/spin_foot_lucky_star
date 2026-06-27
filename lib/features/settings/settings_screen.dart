@@ -10,7 +10,11 @@ class SettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AppBackground(
-      appBar: AppBar(title: const Text('Settings'), backgroundColor: Colors.transparent, elevation: 0),
+      appBar: AppBar(
+        title: const Text('SETTINGS', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 24)),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+      ),
       child: Padding(
         padding: EdgeInsets.only(left: 40, right: 40, top: MediaQuery.of(context).padding.top + kToolbarHeight + 10),
         child: const Column(

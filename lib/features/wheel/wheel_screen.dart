@@ -119,7 +119,10 @@ class _WheelScreenState extends State<WheelScreen> with SingleTickerProviderStat
   Widget build(BuildContext context) {
     return AppBackground(
       appBar: AppBar(
-        title: const Text('Wheel of Fortune'),
+        title: const Text(
+          'WHEEL OF LUCK',
+          style: TextStyle(fontWeight: FontWeight.w700, fontSize: 24),
+        ),
         centerTitle: true,
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -143,11 +146,8 @@ class _WheelScreenState extends State<WheelScreen> with SingleTickerProviderStat
               ),
             ),
             const SizedBox(height: 16),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 32),
-              child: SpinButton(isAnimating: _isAnimating, onPressed: _onSpinPressed),
-            ),
-            const SizedBox(height: 32),
+            SpinButton(isAnimating: _isAnimating, onPressed: _onSpinPressed),
+            const SizedBox(height: 100),
           ],
         ),
       ),

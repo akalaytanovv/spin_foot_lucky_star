@@ -1,41 +1,50 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../shared/widgets/image_button.dart';
 import '../wheel_provider.dart';
-import 'spin_button_child.dart';
+
+String _formatDuration(Duration d) {
+  final h = d.inHours.toString().padLeft(2, '0');
+  final m = (d.inMinutes % 60).toString().padLeft(2, '0');
+  final s = (d.inSeconds % 60).toString().padLeft(2, '0');
+  return '$h:$m:$s';
+}
 
 class SpinButton extends StatelessWidget {
   final bool isAnimating;
   final VoidCallback onPressed;
 
-  const SpinButton({
-    super.key,
-    required this.isAnimating,
-    required this.onPressed,
-  });
+  const SpinButton({super.key, required this.isAnimating, required this.onPressed});
 
   @override
   Widget build(BuildContext context) {
     return Consumer<WheelProvider>(
       builder: (context, wheel, _) {
         final active = wheel.canSpin && !isAnimating;
-        return SizedBox(
-          width: double.infinity,
-          height: 52,
-          child: ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: active ? Colors.deepOrange : Colors.grey.shade400,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, letterSpacing: 1.5),
-            ),
-            onPressed: active ? onPressed : null,
-            child: SpinButtonChild(
-              isAnimating: isAnimating,
-              active: active,
-              freeSpins: wheel.freeSpins,
-              timeUntilNextSpin: wheel.timeUntilNextSpin,
-            ),
+        final hasCountdown = !active && !isAnimating && wheel.timeUntilNextSpin > Duration.zero;
+        final String label = wheel.freeSpins > 0 ? 'FREE SPIN' : 'SPIN';
+
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 58),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (hasCountdown) ...[
+                Text(
+                  _formatDuration(wheel.timeUntilNextSpin),
+                  style: const TextStyle(
+                    fontFamily: 'Roboto',
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black,
+                    height: 1,
+                  ),
+                ),
+                const SizedBox(height: 14),
+              ],
+              ImageButton(label: label, height: 61, isLoading: isAnimating, onPressed: active ? onPressed : null),
+            ],
           ),
         );
       },

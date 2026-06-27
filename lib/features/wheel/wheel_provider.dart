@@ -19,7 +19,7 @@ class WheelPrize {
 class WheelProvider extends ChangeNotifier {
   // 12 equal segments (30° each), clockwise from top, matching wheel_example.png
   static const List<WheelPrize> prizes = [
-    WheelPrize(label: 'MEGA WIN\n10 000', coins: 10000, freeSpins: 0),
+    WheelPrize(label: 'MEGA WIN!\n10 000', coins: 10000, freeSpins: 0),
     WheelPrize(label: '100', coins: 100, freeSpins: 0),
     WheelPrize(label: 'FAIL', coins: 0, freeSpins: 0),
     WheelPrize(label: '500', coins: 500, freeSpins: 0),
