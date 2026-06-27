@@ -13,10 +13,12 @@ enum RoundState { idle, running, cashedOut, crashed }
 class GameProvider extends ChangeNotifier {
   int _balance;
   int _bet;
+  bool _x2Mode = false;
   RoundState _state = RoundState.idle;
   double _multiplier = 1.00;
   double _crashPoint = 1.00;
   double _elapsed = 0.0;
+  int _effectiveBet = 0;
   // null = no result yet, 0 = lost, > 0 = amount won
   int? _lastWin;
   Timer? _timer;
@@ -30,6 +32,7 @@ class GameProvider extends ChangeNotifier {
 
   int get balance => _balance;
   int get bet => _bet;
+  bool get x2Mode => _x2Mode;
   RoundState get state => _state;
   double get multiplier => _multiplier;
   int? get lastWin => _lastWin;
@@ -37,7 +40,8 @@ class GameProvider extends ChangeNotifier {
   int get maxBet => _safeMaxBet(_balance);
 
   int get potentialWin {
-    double win = _bet * _multiplier;
+    final activeBet = _state == RoundState.running ? _effectiveBet : (_x2Mode ? (_bet * 2).clamp(Constants.minBet, maxBet) : _bet);
+    double win = activeBet * _multiplier;
     final bonusPercent = PrefsService.instance.bonusPercent;
     final bonusExpiry = PrefsService.instance.bonusExpiry;
     if (bonusPercent > 0 && bonusExpiry != null && bonusExpiry.isAfter(DateTime.now())) {
@@ -59,6 +63,12 @@ class GameProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void toggleX2() {
+    if (_state == RoundState.running) return;
+    _x2Mode = !_x2Mode;
+    notifyListeners();
+  }
+
   void addToBalance(int amount) {
     _balance += amount;
     PrefsService.instance.setBalance(_balance);
@@ -69,9 +79,10 @@ class GameProvider extends ChangeNotifier {
 
   void startRound() {
     if (_state != RoundState.idle) return;
-    if (_balance < _bet) return;
+    _effectiveBet = _x2Mode ? (_bet * 2).clamp(Constants.minBet, maxBet) : _bet;
+    if (_balance < _effectiveBet) return;
 
-    _balance -= _bet;
+    _balance -= _effectiveBet;
     _state = RoundState.running;
     _elapsed = 0.0;
     _multiplier = 1.00;
@@ -100,7 +111,7 @@ class GameProvider extends ChangeNotifier {
     _timer?.cancel();
     _timer = null;
 
-    double winAmount = _bet * _multiplier;
+    double winAmount = _effectiveBet * _multiplier;
     final bonusPercent = PrefsService.instance.bonusPercent;
     final bonusExpiry = PrefsService.instance.bonusExpiry;
     if (bonusPercent > 0 && bonusExpiry != null && bonusExpiry.isAfter(DateTime.now())) {

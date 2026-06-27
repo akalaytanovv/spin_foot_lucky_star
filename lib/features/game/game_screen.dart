@@ -2,11 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../shared/widgets/app_background.dart';
-import '../../shared/widgets/bet_panel_widget.dart';
 import '../../shared/widgets/result_overlay_widget.dart';
 import 'game_provider.dart';
-import 'widgets/action_button.dart';
 import 'widgets/ball_widget.dart';
+import 'widgets/bet_control_panel/bet_control_panel.dart';
 import 'widgets/multiplier_display.dart';
 import 'widgets/potential_win_label.dart';
 import 'widgets/top_bar.dart';
@@ -37,12 +36,14 @@ class GameScreen extends StatelessWidget {
                         MultiplierDisplay(game: game),
                         const SizedBox(height: 8),
                         PotentialWinLabel(game: game),
-                        const SizedBox(height: 20),
-                        const BetPanelWidget(),
-                        const SizedBox(height: 24),
-                        ActionButton(game: game),
                       ],
                     ),
+                  ),
+                ),
+                Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 480),
+                    child: const BetControlPanel(),
                   ),
                 ),
               ],

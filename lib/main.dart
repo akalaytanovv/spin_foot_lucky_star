@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:device_preview/device_preview.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -44,7 +45,7 @@ void main() async {
       await PrefsService.instance.clearLastWheelSpin();
     }
     await AudioService.instance.init();
-    runApp(const SpinFootApp());
+    runApp(kDebugMode ? DevicePreview(enabled: true, builder: (_) => const SpinFootApp()) : const SpinFootApp());
   }, (error, stack) => _logError(error, stack));
 }
 
@@ -62,6 +63,9 @@ class SpinFootApp extends StatelessWidget {
       child: MaterialApp(
         title: 'Spin Foot Lucky Star',
         debugShowCheckedModeBanner: false,
+        useInheritedMediaQuery: true,
+        locale: DevicePreview.locale(context),
+        builder: DevicePreview.appBuilder,
         initialRoute: '/',
         onGenerateRoute: (settings) {
           final Widget page = switch (settings.name) {
