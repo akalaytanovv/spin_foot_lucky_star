@@ -3,11 +3,13 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../services/ad_service.dart';
 import '../../services/audio_service.dart';
 import '../../shared/widgets/app_background.dart';
 import '../game/game_provider.dart';
 import 'wheel_provider.dart';
 import 'widgets/spin_button.dart';
+import 'widgets/watch_claim_overlay.dart';
 import 'widgets/wheel_widget.dart';
 
 class WheelScreen extends StatefulWidget {
@@ -23,6 +25,7 @@ class _WheelScreenState extends State<WheelScreen> with SingleTickerProviderStat
 
   double _currentAngle = 0;
   bool _isAnimating = false;
+  bool _showWatchClaim = false;
 
   // Center of each segment in radians (0 = top, clockwise).
   // Derived from prize count so it stays in sync if the table changes.
@@ -46,12 +49,33 @@ class _WheelScreenState extends State<WheelScreen> with SingleTickerProviderStat
     if (status != AnimationStatus.completed) return;
     if (!mounted) return;
 
+    AudioService.instance.stopSpin();
     setState(() {
       _currentAngle = _rotationAnimation.value % (2 * pi);
       _isAnimating = false;
+      _showWatchClaim = true;
     });
+  }
 
-    AudioService.instance.stopSpin();
+  void _claimWithAd() {
+    setState(() => _showWatchClaim = false);
+    if (AdService.instance.isReady) {
+      AdService.instance.showRewarded(
+        onRewarded: () {
+          if (!mounted) return;
+          context.read<WheelProvider>().onSpinComplete(context.read<GameProvider>());
+          _showPrizeSnackBar();
+        },
+      );
+    } else {
+      // Fallback: no ad loaded, grant prize directly
+      context.read<WheelProvider>().onSpinComplete(context.read<GameProvider>());
+      _showPrizeSnackBar();
+    }
+  }
+
+  void _claimSkip() {
+    setState(() => _showWatchClaim = false);
     context.read<WheelProvider>().onSpinComplete(context.read<GameProvider>());
     _showPrizeSnackBar();
   }
@@ -128,26 +152,37 @@ class _WheelScreenState extends State<WheelScreen> with SingleTickerProviderStat
         elevation: 0,
       ),
       child: SafeArea(
-        child: Column(
+        child: Stack(
           children: [
-            Expanded(
-              child: Center(
-                child: LayoutBuilder(
-                  builder: (context, constraints) {
-                    final size = min(constraints.maxWidth, constraints.maxHeight) * 0.92;
-                    return WheelWidget(
-                      size: size,
-                      controller: _controller,
-                      rotationAnimation: _rotationAnimation,
-                      labels: _labels,
-                    );
-                  },
+            Column(
+              children: [
+                Expanded(
+                  child: Center(
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        final size = min(constraints.maxWidth, constraints.maxHeight) * 0.92;
+                        return WheelWidget(
+                          size: size,
+                          controller: _controller,
+                          rotationAnimation: _rotationAnimation,
+                          labels: _labels,
+                        );
+                      },
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                SpinButton(isAnimating: _isAnimating, onPressed: _onSpinPressed),
+                const SizedBox(height: 100),
+              ],
+            ),
+            if (_showWatchClaim)
+              Positioned.fill(
+                child: WatchClaimOverlay(
+                  onClaim: _claimWithAd,
+                  onSkip: _claimSkip,
                 ),
               ),
-            ),
-            const SizedBox(height: 16),
-            SpinButton(isAnimating: _isAnimating, onPressed: _onSpinPressed),
-            const SizedBox(height: 100),
           ],
         ),
       ),

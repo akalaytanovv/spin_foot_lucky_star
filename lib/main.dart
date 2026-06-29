@@ -15,6 +15,7 @@ import 'features/settings/settings_screen.dart';
 import 'features/splash/splash_screen.dart';
 import 'features/wheel/wheel_provider.dart';
 import 'features/wheel/wheel_screen.dart';
+import 'services/ad_service.dart';
 import 'services/analytics_service.dart';
 import 'services/audio_service.dart';
 import 'services/prefs_service.dart';
@@ -51,6 +52,7 @@ void main() async {
       }
       await AudioService.instance.init();
       await AnalyticsService.instance.init();
+      await AdService.instance.init();
     } catch (e, stack) {
       _logError(e, stack);
       initError = e.toString();
