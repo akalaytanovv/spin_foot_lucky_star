@@ -1,11 +1,23 @@
 import 'package:flutter/material.dart';
 
+import '../../services/analytics_service.dart';
 import '../../shared/widgets/app_background.dart';
 import 'widgets/sound_card.dart';
 import 'widgets/toggle_card.dart';
 
-class SettingsScreen extends StatelessWidget {
+class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
+
+  @override
+  State<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends State<SettingsScreen> {
+  @override
+  void initState() {
+    super.initState();
+    AnalyticsService.instance.settingsOpen();
+  }
 
   @override
   Widget build(BuildContext context) {

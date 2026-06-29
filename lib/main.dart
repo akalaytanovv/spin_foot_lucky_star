@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
+import 'features/error/error_screen.dart';
 import 'features/game/game_provider.dart';
 import 'features/game/game_screen.dart';
 import 'features/lets_play/lets_play_screen.dart';
@@ -14,6 +15,7 @@ import 'features/settings/settings_screen.dart';
 import 'features/splash/splash_screen.dart';
 import 'features/wheel/wheel_provider.dart';
 import 'features/wheel/wheel_screen.dart';
+import 'services/analytics_service.dart';
 import 'services/audio_service.dart';
 import 'services/prefs_service.dart';
 
@@ -41,17 +43,28 @@ void main() async {
       return true;
     };
 
-    await PrefsService.instance.init();
-    if (kDebugMode) {
-      await PrefsService.instance.clearLastWheelSpin();
+    String? initError;
+    try {
+      await PrefsService.instance.init();
+      if (kDebugMode) {
+        await PrefsService.instance.clearLastWheelSpin();
+      }
+      await AudioService.instance.init();
+      await AnalyticsService.instance.init();
+    } catch (e, stack) {
+      _logError(e, stack);
+      initError = e.toString();
     }
-    await AudioService.instance.init();
-    runApp(kDebugMode ? DevicePreview(enabled: true, builder: (_) => const SpinFootApp()) : const SpinFootApp());
+
+    final app = SpinFootApp(initError: initError);
+    runApp(kDebugMode ? DevicePreview(enabled: true, builder: (_) => app) : app);
   }, (error, stack) => _logError(error, stack));
 }
 
 class SpinFootApp extends StatelessWidget {
-  const SpinFootApp({super.key});
+  const SpinFootApp({super.key, this.initError});
+
+  final String? initError;
 
   @override
   Widget build(BuildContext context) {
@@ -70,9 +83,10 @@ class SpinFootApp extends StatelessWidget {
         theme: ThemeData(
           textTheme: GoogleFonts.puritanTextTheme().apply(bodyColor: Colors.white, displayColor: Colors.white),
         ),
-        initialRoute: '/',
+        initialRoute: initError != null ? '/error' : '/',
         onGenerateRoute: (settings) {
           final Widget page = switch (settings.name) {
+            '/error' => ErrorScreen(message: settings.arguments as String? ?? initError),
             '/lets_play' => const LetsPlayScreen(),
             '/game' => const GameScreen(),
             '/wheel' => const WheelScreen(),

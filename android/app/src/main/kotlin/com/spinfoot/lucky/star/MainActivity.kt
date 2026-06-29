@@ -1,4 +1,4 @@
-package com.example.spin_foot_lucky_star
+package com.spinfoot.lucky.star
 
 import io.flutter.embedding.android.FlutterActivity
 

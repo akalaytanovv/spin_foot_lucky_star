@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:vibration/vibration.dart';
 
 import '../../core/constants.dart';
+import '../../services/analytics_service.dart';
 import '../../services/audio_service.dart';
 import '../../services/prefs_service.dart';
 
@@ -70,8 +71,11 @@ class GameProvider extends ChangeNotifier {
   // ── Bet ──────────────────────────────────────────────────────────────────
 
   void setBet(int value) {
-    _bet = value.clamp(Constants.minBet, maxBet);
+    final newBet = value.clamp(Constants.minBet, maxBet);
+    if (newBet == _bet) return;
+    _bet = newBet;
     PrefsService.instance.setBet(_bet);
+    AnalyticsService.instance.betChange();
     notifyListeners();
   }
 
@@ -120,6 +124,7 @@ class GameProvider extends ChangeNotifier {
     _lastWin = null;
 
     AudioService.instance.playSpin();
+    AnalyticsService.instance.gameStart();
     notifyListeners();
 
     _timer = Timer.periodic(const Duration(milliseconds: 100), (_) => _tick());
@@ -161,6 +166,7 @@ class GameProvider extends ChangeNotifier {
 
     AudioService.instance.stopSpin();
     AudioService.instance.playWin();
+    AnalyticsService.instance.gameWin();
     _vibrate();
   }
 
@@ -175,6 +181,7 @@ class GameProvider extends ChangeNotifier {
 
     AudioService.instance.stopSpin();
     AudioService.instance.playLose();
+    AnalyticsService.instance.gameLoss();
     _vibrate();
   }
 

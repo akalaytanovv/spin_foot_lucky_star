@@ -1,6 +1,8 @@
 class Constants {
   Constants._();
 
+  static const String appMetricaKey = String.fromEnvironment('APP_METRICA_KEY');
+
   static const int initialBalance = 1000;
   static const int minBet = 1;
   static const int lowBalanceThreshold = 10;
