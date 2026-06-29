@@ -23,6 +23,12 @@ class GameProvider extends ChangeNotifier {
   int? _lastWin;
   Timer? _timer;
 
+  // ── Auto Play ─────────────────────────────────────────────────────────────
+  bool _autoPlay = false;
+  // 0 = infinite
+  int _autoPlayRoundsLeft = 0;
+  double? _autoCashOutAt;
+
   GameProvider() : _balance = PrefsService.instance.balance, _bet = Constants.minBet {
     final savedBet = PrefsService.instance.bet;
     _bet = savedBet.clamp(Constants.minBet, _safeMaxBet(_balance));
@@ -36,11 +42,17 @@ class GameProvider extends ChangeNotifier {
   RoundState get state => _state;
   double get multiplier => _multiplier;
   int? get lastWin => _lastWin;
+  bool get autoPlay => _autoPlay;
+  int get autoPlayRoundsLeft => _autoPlayRoundsLeft;
+  double? get autoCashOutAt => _autoCashOutAt;
 
   int get maxBet => _safeMaxBet(_balance);
+  int get effectiveBet => _effectiveBet;
 
   int get potentialWin {
-    final activeBet = _state == RoundState.running ? _effectiveBet : (_x2Mode ? (_bet * 2).clamp(Constants.minBet, maxBet) : _bet);
+    final activeBet = _state == RoundState.running
+        ? _effectiveBet
+        : (_x2Mode ? (_bet * 2).clamp(Constants.minBet, maxBet) : _bet);
     double win = activeBet * _multiplier;
     final bonusPercent = PrefsService.instance.bonusPercent;
     final bonusExpiry = PrefsService.instance.bonusExpiry;
@@ -69,6 +81,21 @@ class GameProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void startAutoPlay({int rounds = 0, double? cashOutAt}) {
+    if (_state != RoundState.idle) return;
+    _autoPlay = true;
+    _autoPlayRoundsLeft = rounds;
+    _autoCashOutAt = cashOutAt;
+    startRound();
+  }
+
+  void stopAutoPlay() {
+    _autoPlay = false;
+    _autoPlayRoundsLeft = 0;
+    _autoCashOutAt = null;
+    notifyListeners();
+  }
+
   void addToBalance(int amount) {
     _balance += amount;
     PrefsService.instance.setBalance(_balance);
@@ -80,7 +107,10 @@ class GameProvider extends ChangeNotifier {
   void startRound() {
     if (_state != RoundState.idle) return;
     _effectiveBet = _x2Mode ? (_bet * 2).clamp(Constants.minBet, maxBet) : _bet;
-    if (_balance < _effectiveBet) return;
+    if (_balance < _effectiveBet) {
+      if (_autoPlay) stopAutoPlay();
+      return;
+    }
 
     _balance -= _effectiveBet;
     _state = RoundState.running;
@@ -102,6 +132,10 @@ class GameProvider extends ChangeNotifier {
       _multiplier = _crashPoint;
       _crash();
     } else {
+      if (_autoPlay && _autoCashOutAt != null && _multiplier >= _autoCashOutAt!) {
+        cashOut();
+        return;
+      }
       notifyListeners();
     }
   }
@@ -172,6 +206,17 @@ class GameProvider extends ChangeNotifier {
       PrefsService.instance.setBet(_bet);
     }
     notifyListeners();
+
+    if (_autoPlay) {
+      if (_autoPlayRoundsLeft > 0) {
+        _autoPlayRoundsLeft--;
+        if (_autoPlayRoundsLeft == 0) {
+          stopAutoPlay();
+          return;
+        }
+      }
+      startRound();
+    }
   }
 
   // ── Helpers ───────────────────────────────────────────────────────────────
@@ -179,7 +224,7 @@ class GameProvider extends ChangeNotifier {
   double _generateCrashPoint() {
     final r = Random().nextDouble();
     final crash = 0.95 / (1.0 - r);
-    return double.parse(crash.toStringAsFixed(2)).clamp(1.05, 100.00);
+    return double.parse(crash.toStringAsFixed(2)).clamp(1.00, 100.00);
   }
 
   void _vibrate() {
