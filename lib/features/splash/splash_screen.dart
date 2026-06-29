@@ -16,12 +16,11 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 2),
-    )..addStatusListener((status) {
+    _controller = AnimationController(vsync: this, duration: const Duration(seconds: 2))
+      ..addStatusListener((status) {
         if (status == AnimationStatus.completed) {
-          Navigator.pushReplacementNamed(context, '/lets_play');
+          // TODO: re-enable navigation to lets_play
+          // Navigator.pushReplacementNamed(context, '/lets_play');
         }
       });
     _controller.forward();
@@ -35,8 +34,6 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
 
   @override
   Widget build(BuildContext context) {
-    return AppBackground(
-      child: SplashBody(animation: _controller),
-    );
+    return AppBackground(child: SplashBody(animation: _controller));
   }
 }
