@@ -7,12 +7,7 @@ class SwitchRow extends StatelessWidget {
   final bool value;
   final ValueChanged<bool>? onChanged;
 
-  const SwitchRow({
-    super.key,
-    required this.label,
-    required this.value,
-    required this.onChanged,
-  });
+  const SwitchRow({super.key, required this.label, required this.value, required this.onChanged});
 
   @override
   Widget build(BuildContext context) {
@@ -21,11 +16,7 @@ class SwitchRow extends StatelessWidget {
       children: [
         Text(
           label,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-          ),
+          style: const TextStyle(color: Color(0xFFFFE5B4), fontSize: 20, fontWeight: FontWeight.w400),
         ),
         CustomSwitch(value: value, onChanged: onChanged),
       ],

@@ -40,13 +40,19 @@ class X2Panel extends StatelessWidget {
                         alignment: Alignment.center,
                         children: [
                           Positioned.fill(child: Image.asset('assets/bet_x2_label.png', fit: BoxFit.fill)),
-                          const Text(
-                            'x2',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                              shadows: [Shadow(blurRadius: 2, color: Colors.black54)],
+                          const Align(
+                            alignment: Alignment.centerLeft,
+                            child: Padding(
+                              padding: EdgeInsets.only(left: 8),
+                              child: Text(
+                                'x2',
+                                style: TextStyle(
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.white,
+                                  shadows: [Shadow(blurRadius: 2, color: Colors.black54)],
+                                ),
+                              ),
                             ),
                           ),
                         ],

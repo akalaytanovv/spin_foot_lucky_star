@@ -33,8 +33,8 @@ class _AutoPlayButtonState extends State<AutoPlayButton> {
                 const Text(
                   'Auto Play',
                   style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
+                    fontSize: 24,
+                    fontWeight: FontWeight.w700,
                     color: Colors.white,
                     shadows: [Shadow(blurRadius: 2, color: Colors.black54)],
                   ),

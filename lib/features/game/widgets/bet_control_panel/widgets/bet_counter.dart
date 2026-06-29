@@ -74,8 +74,8 @@ class _BetCounterState extends State<BetCounter> {
             Text(
               label,
               style: const TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
+                fontSize: 24,
+                fontWeight: FontWeight.w700,
                 color: Colors.white,
                 shadows: [Shadow(blurRadius: 2, color: Colors.black54)],
               ),
@@ -123,8 +123,8 @@ class _BetCounterState extends State<BetCounter> {
                     child: Text(
                       '$bet',
                       style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
+                        fontSize: 24,
+                        fontWeight: FontWeight.w700,
                         color: Colors.white,
                         shadows: [Shadow(blurRadius: 3, color: Colors.black87)],
                       ),

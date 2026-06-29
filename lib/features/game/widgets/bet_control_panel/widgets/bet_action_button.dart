@@ -52,8 +52,8 @@ class _BetActionButtonState extends State<BetActionButton> {
                     child: Text(
                       label,
                       style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
+                        fontSize: 24,
+                        fontWeight: FontWeight.w700,
                         color: Colors.white,
                         shadows: [Shadow(blurRadius: 3, color: Colors.black87)],
                       ),

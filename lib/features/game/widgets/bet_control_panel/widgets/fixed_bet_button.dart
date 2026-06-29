@@ -26,8 +26,7 @@ class _FixedBetButtonState extends State<FixedBetButton> {
               setState(() => _pressed = false);
               context.read<GameProvider>().setBet(widget.value);
             },
-      onTapCancel:
-          widget.disabled ? null : () => setState(() => _pressed = false),
+      onTapCancel: widget.disabled ? null : () => setState(() => _pressed = false),
       child: AnimatedScale(
         scale: (_pressed && !widget.disabled) ? 0.88 : 1.0,
         duration: const Duration(milliseconds: 80),
@@ -41,16 +40,17 @@ class _FixedBetButtonState extends State<FixedBetButton> {
               child: Stack(
                 alignment: Alignment.center,
                 children: [
-                  Positioned.fill(
-                    child: Image.asset('assets/bet_button.png', fit: BoxFit.fill),
-                  ),
-                  Text(
-                    '${widget.value}',
-                    style: const TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                      shadows: [Shadow(blurRadius: 2, color: Colors.black54)],
+                  Positioned.fill(child: Image.asset('assets/bet_button.png', fit: BoxFit.fill)),
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 4),
+                    child: Text(
+                      '${widget.value}',
+                      style: const TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white,
+                        shadows: [Shadow(blurRadius: 2, color: Colors.black54)],
+                      ),
                     ),
                   ),
                 ],

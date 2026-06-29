@@ -19,8 +19,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
     _controller = AnimationController(vsync: this, duration: const Duration(seconds: 2))
       ..addStatusListener((status) {
         if (status == AnimationStatus.completed) {
-          // TODO: re-enable navigation to lets_play
-          // Navigator.pushReplacementNamed(context, '/lets_play');
+          Navigator.pushReplacementNamed(context, '/lets_play');
         }
       });
     _controller.forward();

@@ -33,11 +33,12 @@ class TopBar extends StatelessWidget {
                       ),
                     ),
                     Padding(
-                      padding: const EdgeInsets.only(left: 16, bottom: 3),
+                      padding: const EdgeInsets.only(left: 20, bottom: 4),
                       child: Text(
                         '$balance',
-                        style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.white),
+                        style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: Color(0xFFFFECAC)),
                         overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.right,
                       ),
                     ),
                   ],

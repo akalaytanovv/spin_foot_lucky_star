@@ -5,12 +5,7 @@ class VolumeSlider extends StatelessWidget {
   final double value;
   final ValueChanged<double> onChanged;
 
-  const VolumeSlider({
-    super.key,
-    required this.label,
-    required this.value,
-    required this.onChanged,
-  });
+  const VolumeSlider({super.key, required this.label, required this.value, required this.onChanged});
 
   static final _sliderTheme = SliderThemeData(
     trackHeight: 8,
@@ -30,11 +25,7 @@ class VolumeSlider extends StatelessWidget {
       children: [
         Text(
           label,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-          ),
+          style: const TextStyle(color: Color(0xFFFFE5B4), fontSize: 20, fontWeight: FontWeight.w400),
         ),
         const SizedBox(height: 10),
         SliderTheme(
@@ -88,17 +79,12 @@ class _PillTrackShape extends RoundedRectSliderTrackShape {
     final activePaint = Paint()..color = sliderTheme.activeTrackColor!;
     final inactivePaint = Paint()..color = sliderTheme.inactiveTrackColor!;
 
-    final leftRect = Rect.fromLTRB(
-        trackRect.left, trackRect.top, thumbCenter.dx, trackRect.bottom);
-    final rightRect = Rect.fromLTRB(
-        thumbCenter.dx, trackRect.top, trackRect.right, trackRect.bottom);
+    final leftRect = Rect.fromLTRB(trackRect.left, trackRect.top, thumbCenter.dx, trackRect.bottom);
+    final rightRect = Rect.fromLTRB(thumbCenter.dx, trackRect.top, trackRect.right, trackRect.bottom);
 
     switch (textDirection) {
       case TextDirection.ltr:
-        context.canvas.drawRRect(
-          RRect.fromRectAndCorners(leftRect, topLeft: radius, bottomLeft: radius),
-          activePaint,
-        );
+        context.canvas.drawRRect(RRect.fromRectAndCorners(leftRect, topLeft: radius, bottomLeft: radius), activePaint);
         context.canvas.drawRRect(
           RRect.fromRectAndCorners(rightRect, topRight: radius, bottomRight: radius),
           inactivePaint,
