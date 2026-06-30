@@ -79,6 +79,7 @@ class WheelProvider extends ChangeNotifier {
       PrefsService.instance.setFreeSpins(currentFreeSpins - 1);
     } else {
       PrefsService.instance.setLastWheelSpin(DateTime.now());
+      _startCountdownTimer();
     }
 
     notifyListeners();

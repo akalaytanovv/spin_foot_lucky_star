@@ -10,6 +10,7 @@ class AdService {
   bool _loading = false;
 
   VoidCallback? _pendingOnRewarded;
+  VoidCallback? _pendingOnAdFinished;
 
   bool get isReady => _rewardedAd != null;
 
@@ -31,6 +32,7 @@ class AdService {
             _rewardedAd?.dispose();
             _rewardedAd = null;
             _loading = false;
+            _finishAdSession();
             loadRewarded();
           },
           onAdHidden: () {
@@ -38,6 +40,7 @@ class AdService {
             _rewardedAd?.dispose();
             _rewardedAd = null;
             _loading = false;
+            _finishAdSession();
             loadRewarded();
           },
           onVideoCompleted: () {
@@ -61,18 +64,30 @@ class AdService {
         });
   }
 
+  void _finishAdSession() {
+    _pendingOnAdFinished?.call();
+    _pendingOnAdFinished = null;
+    _pendingOnRewarded = null;
+  }
+
   /// Show rewarded video.
   /// [onRewarded] is called only when the user watches the ad to completion.
-  void showRewarded({required VoidCallback onRewarded}) {
+  /// [onAdFinished] is called when the ad closes (with or without reward).
+  void showRewarded({
+    required VoidCallback onRewarded,
+    VoidCallback? onAdFinished,
+  }) {
     final ad = _rewardedAd;
     if (ad == null) {
       debugPrint('[AdService] showRewarded: no ad ready');
+      onAdFinished?.call();
       return;
     }
     _pendingOnRewarded = onRewarded;
+    _pendingOnAdFinished = onAdFinished;
     ad.show().onError((e, _) {
       debugPrint('[AdService] show error: $e');
-      _pendingOnRewarded = null;
+      _finishAdSession();
       return false;
     });
   }

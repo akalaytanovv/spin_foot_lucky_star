@@ -7,17 +7,10 @@ flowchart TD
     main[main.dart] --> GP[GameProvider]
     main --> WP[WheelProvider]
     main --> SP[SettingsProvider]
-    main --> ShP[ShopProvider NEW]
-    main --> WDP[WithdrawalProvider NEW]
 
     GP --> prefs[PrefsService]
     GP --> audio[AudioService]
     GP --> analytics[AnalyticsService NEW]
-    ShP --> purchase[PurchaseService NEW]
-    ShP --> ads[AdService NEW]
-    ShP --> prefs
-
-    routes["/shop NEW /withdrawal NEW /leaderboard NEW"] --> main
 ```
 
 ---
@@ -57,98 +50,29 @@ AppMetrica.reportEventWithMap('game_win', {'spin_foot_lucky_star': {'game_name':
 
 ---
 
-## Блок 3 — Shop Screen
+## Блок 3 — Settings: исправления
 
-**Новые файлы:**
-- `lib/features/shop/shop_screen.dart`
-- `lib/features/shop/shop_provider.dart`
-- `lib/services/purchase_service.dart`
+**Звук и музыка — через ползунки (как сейчас), без свитчеров вкл/выкл**
 
-**ShopProvider:**
-- Методы: `buyPack(packId)` → через `PurchaseService` → при успехе: `addCoins`, `addFreeSpins`, `setBonusPercent`, `setBonusExpiry`
-- 3 пакета (не-белая прила по `AGENT.md`): Starter $2.99 / Premium $5.99 / VIP $9.99
-- Геттер `activeBonusLabel` — отображает оставшееся время бонуса
+Текущая реализация уже корректна: `SoundCard` содержит два `VolumeSlider` (Sound / Music), `SettingsProvider` управляет `soundVolume` и `musicVolume`, `AudioService` применяет громкость к `_fxPlayer` / `_spinPlayer` и `_bgPlayer`. Отключение звука — через громкость `0`, отдельные `soundEnabled` / `fxEnabled` не нужны.
 
-**PurchaseService:** обёртка над `in_app_purchase` (пакет уже в `pubspec.yaml`)
-- `initialize()`, `buyProduct(productId)`, stream покупок
+**Что проверить / доделать:**
+- Убедиться, что `AudioService` не воспроизводит FX при `soundVolume == 0` и не играет музыку при `musicVolume == 0` (сейчас громкость применяется, но вызовы `playWin` / `playLose` / `playSpin` / `playBackground` не проверяют нулевую громкость — добавить early return)
+- Удалить неиспользуемые `soundEnabled` / `fxEnabled` из `PrefsService`, если они нигде не задействованы
+- `SettingsProvider` и `SoundCard` — без изменений, ползунки остаются
 
-**ShopScreen UI:**
-- Три карточки пакетов с кнопкой цены
-- Кнопка "Watch & Get 1000 Coins" (rewarded via `AdService`)
-- Кликабельные Terms of Use / Privacy Policy внизу
-- Analytics: `paywallView` при открытии, `paywallClose` при выходе без покупки
-
-**Маршрут и провайдер:**
-- `lib/main.dart` — добавить `ShopProvider` в `MultiProvider`, маршрут `/shop`
-- `lib/features/game/widgets/top_bar.dart` — `onPressed: () => Navigator.pushNamed(context, '/shop')`
-
----
-
-## Блок 4 — Withdrawal Screen
-
-**Новые файлы:**
-- `lib/features/withdrawal/withdrawal_screen.dart`
-- `lib/features/withdrawal/withdrawal_provider.dart`
-
-**WithdrawalProvider:**
-- Читает баланс из `GameProvider` (или `PrefsService` напрямую)
-- `withdraw()` — списывает 10 000 монет через `GameProvider.addToBalance(-10000)`
-- Управляет выбранным методом оплаты и текстом поля(ей)
-
-**WithdrawalScreen UI:**
-- Ползунок `0 → balance`, шаг 1000, подпись `N/следующий_порог` (следующий кратный 10 000)
-- Кнопка `10 000 → $5`: `opacity: canWithdraw ? 1.0 : 0.5`, `IgnorePointer(ignoring: !canWithdraw)`
-- Dropdown-список методов оплаты (22 метода по `specs/common_spec.md`)
-- Два режима полей — одно поле (крипта/PayPal/etc) или два поля (Name + Card number) — логика переключения по выбранному методу:
-
-```dart
-static const _twoFieldMethods = {'Visa', 'CAD', 'Card', 'Card USD', 'Korean Cards', 'Maestro', 'Cartes', 'Klarna'};
-```
-
-- Диалог подтверждения после нажатия кнопки вывода
-
-**Маршрут и провайдер:**
-- `lib/main.dart` — добавить `WithdrawalProvider`, маршрут `/withdrawal`
-- `lib/features/game/widgets/top_bar.dart` — `onPressed: () => Navigator.pushNamed(context, '/withdrawal')`
-
----
-
-## Блок 5 — Leaderboard Screen
-
-**Новый файл:**
-- `lib/features/leaderboard/leaderboard_screen.dart`
-
-**LeaderboardScreen UI:**
-- Читает `PrefsService.instance.leaderboard` (уже хранится top-10)
-- Список строк: место + сумма выигрыша
-- Кнопка назад
-- Точка входа: через `SettingsScreen` или отдельная кнопка в `TopBar` (уточнить по Figma)
-
-**Маршрут:**
-- `lib/main.dart` — добавить маршрут `/leaderboard`
-
----
-
-## Блок 6 — Settings: исправления
-
-**Проблема 1: soundEnabled / fxEnabled не в UI и не проверяются**
-
-- `lib/features/settings/settings_provider.dart` — добавить `soundEnabled`, `fxEnabled`, методы `setSoundEnabled`, `setFxEnabled`
-- `lib/features/settings/widgets/sound_card.dart` — добавить два SwitchRow: "Music" и "Sound FX"
-- `lib/services/audio_service.dart` — перед вызовом `playWin/playLose/playSpin` проверять `PrefsService.instance.fxEnabled`; перед `playBackground` — `soundEnabled`
-
-**Проблема 2: Notifications — заглушка**
+**Notifications — заглушка**
 
 - `lib/features/settings/widgets/toggle_card.dart` — подключить реальный toggle, сохранять в `PrefsService` (добавить `notificationsEnabled`)
 
-**Проблема 3: Terms/Privacy в Settings**
+**Terms/Privacy в Settings**
 
 - `lib/features/settings/settings_screen.dart` — добавить две строки-ссылки внизу через `url_launcher`
 - `lib/core/constants.dart` — заменить `example.com` на реальные URL Telegraph
 
 ---
 
-## Блок 7 — Wheel: исправления
+## Блок 4 — Wheel: исправления
 
 **Проблема 1: нет пульсации + нет "Tap"**
 
@@ -161,7 +85,7 @@ static const _twoFieldMethods = {'Visa', 'CAD', 'Card', 'Card USD', 'Korean Card
 
 ---
 
-## Блок 8 — Game: Boost Reward после победы
+## Блок 5 — Game: Boost Reward после победы
 
 **Изменения в:**
 - `lib/shared/widgets/result_overlay_widget.dart` — при `cashedOut` добавить кнопку "Boost Reward" (показывается 2 сек, пульсирует)
@@ -169,14 +93,14 @@ static const _twoFieldMethods = {'Visa', 'CAD', 'Card', 'Card USD', 'Korean Card
 
 ---
 
-## Блок 9 — Terms / Privacy URLs
+## Блок 6 — Terms / Privacy URLs
 
 - `lib/core/constants.dart` — заменить `termsUrl` и `privacyUrl` на реальные ссылки Telegraph (по шаблону из `specs/common_spec.md`)
 - Убедиться, что `url_launcher` вызывается в: `LetsPlayScreen`, `ShopScreen`, `SettingsScreen`
 
 ---
 
-## Блок 10 — Cleanup
+## Блок 7 — Cleanup
 
 - Удалить или переиспользовать orphaned виджеты: `bet_panel_widget.dart`, `wheel_timer_widget.dart`, `multiplier_display.dart`, `potential_win_label.dart`
 - `lib/main.dart` — удалить `DevicePreview` из production-сборки (уже обёрнут в `kDebugMode`, но импорт в prod-коде)
@@ -189,10 +113,7 @@ static const _twoFieldMethods = {'Visa', 'CAD', 'Card', 'Card USD', 'Korean Card
 1. AppMetrica (фундамент — логировать с самого начала)
 2. Settings исправления (быстро, независимо)
 3. Terms/Privacy URLs
-4. Leaderboard Screen (минимум кода, готовые данные)
-5. Shop Screen + PurchaseService + ShopProvider
-6. Withdrawal Screen + WithdrawalProvider
-7. start.io AdService
-8. Wheel: Watch & Claim + пульсация
-9. Game: Boost Reward overlay
-10. Cleanup + версия
+4. start.io AdService
+5. Wheel: Watch & Claim + пульсация
+6. Game: Boost Reward overlay
+7. Cleanup + версия

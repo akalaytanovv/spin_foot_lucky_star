@@ -58,9 +58,15 @@ void main() async {
       initError = e.toString();
     }
 
-    final app = SpinFootApp(initError: initError);
-    runApp(kDebugMode ? DevicePreview(enabled: true, builder: (_) => app) : app);
+    runApp(_wrapApp(SpinFootApp(initError: initError)));
   }, (error, stack) => _logError(error, stack));
+}
+
+Widget _wrapApp(Widget app) {
+  if (kDebugMode) {
+    return DevicePreview(enabled: true, builder: (_) => app);
+  }
+  return app;
 }
 
 class SpinFootApp extends StatelessWidget {
@@ -79,9 +85,9 @@ class SpinFootApp extends StatelessWidget {
       child: MaterialApp(
         title: 'Spin Foot Lucky Star',
         debugShowCheckedModeBanner: false,
-        useInheritedMediaQuery: true,
-        locale: DevicePreview.locale(context),
-        builder: DevicePreview.appBuilder,
+        useInheritedMediaQuery: kDebugMode,
+        locale: kDebugMode ? DevicePreview.locale(context) : null,
+        builder: kDebugMode ? DevicePreview.appBuilder : null,
         theme: ThemeData(
           textTheme: GoogleFonts.puritanTextTheme().apply(bodyColor: Colors.white, displayColor: Colors.white),
         ),

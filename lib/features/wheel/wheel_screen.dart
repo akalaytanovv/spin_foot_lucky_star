@@ -26,6 +26,7 @@ class _WheelScreenState extends State<WheelScreen> with SingleTickerProviderStat
   double _currentAngle = 0;
   bool _isAnimating = false;
   bool _showWatchClaim = false;
+  bool _isClaimingAd = false;
 
   // Center of each segment in radians (0 = top, clockwise).
   // Derived from prize count so it stays in sync if the table changes.
@@ -57,31 +58,46 @@ class _WheelScreenState extends State<WheelScreen> with SingleTickerProviderStat
     });
   }
 
-  void _claimWithAd() {
-    setState(() => _showWatchClaim = false);
-    if (AdService.instance.isReady) {
-      AdService.instance.showRewarded(
-        onRewarded: () {
-          if (!mounted) return;
-          context.read<WheelProvider>().onSpinComplete(context.read<GameProvider>());
-          _showPrizeSnackBar();
-        },
-      );
-    } else {
-      // Fallback: no ad loaded, grant prize directly
-      context.read<WheelProvider>().onSpinComplete(context.read<GameProvider>());
-      _showPrizeSnackBar();
-    }
-  }
-
-  void _claimSkip() {
-    setState(() => _showWatchClaim = false);
+  void _finishClaim() {
     context.read<WheelProvider>().onSpinComplete(context.read<GameProvider>());
     _showPrizeSnackBar();
   }
 
+  void _claimSkip() {
+    if (_isClaimingAd) return;
+    setState(() => _showWatchClaim = false);
+    _finishClaim();
+  }
+
+  void _claimWithAd() {
+    if (_isClaimingAd) return;
+
+    if (!AdService.instance.isReady) {
+      setState(() {
+        _showWatchClaim = false;
+        _isClaimingAd = false;
+      });
+      _finishClaim();
+      return;
+    }
+
+    setState(() => _isClaimingAd = true);
+
+    AdService.instance.showRewarded(
+      onRewarded: () {
+        if (!mounted) return;
+        setState(() => _showWatchClaim = false);
+        _finishClaim();
+      },
+      onAdFinished: () {
+        if (!mounted) return;
+        setState(() => _isClaimingAd = false);
+      },
+    );
+  }
+
   void _onSpinPressed() {
-    if (_isAnimating) return;
+    if (_isAnimating || _showWatchClaim || _isClaimingAd) return;
     final wheel = context.read<WheelProvider>();
     wheel.spin();
     _startAnimation(wheel.spinToIndex);
@@ -143,10 +159,7 @@ class _WheelScreenState extends State<WheelScreen> with SingleTickerProviderStat
   Widget build(BuildContext context) {
     return AppBackground(
       appBar: AppBar(
-        title: const Text(
-          'WHEEL OF LUCK',
-          style: TextStyle(fontWeight: FontWeight.w700, fontSize: 24),
-        ),
+        title: const Text('WHEEL OF LUCK', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 24)),
         centerTitle: true,
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -172,16 +185,17 @@ class _WheelScreenState extends State<WheelScreen> with SingleTickerProviderStat
                   ),
                 ),
                 const SizedBox(height: 16),
-                SpinButton(isAnimating: _isAnimating, onPressed: _onSpinPressed),
+                SpinButton(
+                  isAnimating: _isAnimating,
+                  isBlocked: _showWatchClaim || _isClaimingAd,
+                  onPressed: _onSpinPressed,
+                ),
                 const SizedBox(height: 100),
               ],
             ),
             if (_showWatchClaim)
               Positioned.fill(
-                child: WatchClaimOverlay(
-                  onClaim: _claimWithAd,
-                  onSkip: _claimSkip,
-                ),
+                child: WatchClaimOverlay(onClaim: _claimWithAd, onSkip: _claimSkip, isClaiming: _isClaimingAd),
               ),
           ],
         ),

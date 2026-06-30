@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:appmetrica_plugin/appmetrica_plugin.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 
 import '../core/constants.dart';
@@ -13,9 +14,9 @@ class AnalyticsService with WidgetsBindingObserver {
 
   Future<void> init() async {
     await AppMetrica.activate(
-      const AppMetricaConfig(
+      AppMetricaConfig(
         Constants.appMetricaKey,
-        logs: true,
+        logs: kDebugMode,
       ),
     );
     WidgetsBinding.instance.addObserver(this);
