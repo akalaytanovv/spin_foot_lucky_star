@@ -3,7 +3,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../../core/constants.dart';
 import '../../../game_provider.dart';
+import 'bet_input_dialog.dart';
 
 class BetCounter extends StatefulWidget {
   final bool disabled;
@@ -18,6 +20,13 @@ class _BetCounterState extends State<BetCounter> {
   Timer? _holdTimer;
   bool _minusPressed = false;
   bool _plusPressed = false;
+
+  static const _textStyle = TextStyle(
+    fontSize: 24,
+    fontWeight: FontWeight.w700,
+    color: Colors.white,
+    shadows: [Shadow(blurRadius: 3, color: Colors.black87)],
+  );
 
   @override
   void dispose() {
@@ -40,11 +49,15 @@ class _BetCounterState extends State<BetCounter> {
     _holdTimer = null;
   }
 
+  void _openBetDialog() {
+    if (widget.disabled) return;
+    showBetInputDialog(context);
+  }
+
   Widget _counterBtn({required String label, required int delta}) {
     final isPlus = delta > 0;
     final pressed = isPlus ? _plusPressed : _minusPressed;
-    void setPressed(bool v) =>
-        setState(() => isPlus ? _plusPressed = v : _minusPressed = v);
+    void setPressed(bool v) => setState(() => isPlus ? _plusPressed = v : _minusPressed = v);
 
     return GestureDetector(
       onTapDown: (_) {
@@ -105,29 +118,27 @@ class _BetCounterState extends State<BetCounter> {
               children: [
                 Positioned.fill(child: Image.asset('assets/counter_bg.png', fit: BoxFit.fill)),
                 Positioned(
-                  left: 0,
+                  left: 2,
                   top: (57 - 52) / 2,
                   width: 47,
                   height: 52,
-                  child: _counterBtn(label: '−', delta: -1),
+                  child: _counterBtn(label: '−', delta: -Constants.betStep),
                 ),
                 Positioned(
-                  right: 0,
+                  right: 2,
                   top: (57 - 52) / 2,
                   width: 47,
                   height: 52,
-                  child: _counterBtn(label: '+', delta: 1),
+                  child: _counterBtn(label: '+', delta: Constants.betStep),
                 ),
                 Center(
-                  child: IgnorePointer(
-                    child: Text(
-                      '$bet',
-                      style: const TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.white,
-                        shadows: [Shadow(blurRadius: 3, color: Colors.black87)],
-                      ),
+                  child: GestureDetector(
+                    onTap: _openBetDialog,
+                    behavior: HitTestBehavior.opaque,
+                    child: SizedBox(
+                      width: 118,
+                      height: 40,
+                      child: Center(child: Text('$bet', style: _textStyle)),
                     ),
                   ),
                 ),

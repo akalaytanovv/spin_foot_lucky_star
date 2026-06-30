@@ -17,6 +17,7 @@ class GameScreen extends StatelessWidget {
     final showOverlay = game.state == RoundState.cashedOut || game.state == RoundState.crashed;
 
     return AppBackground(
+      resizeToAvoidBottomInset: false,
       child: SafeArea(
         child: Stack(
           children: [

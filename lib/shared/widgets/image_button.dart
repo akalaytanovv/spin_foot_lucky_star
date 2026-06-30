@@ -30,6 +30,14 @@ class ImageButton extends StatefulWidget {
     height: 1,
   );
 
+  /// Compact label style for modal dialog confirm buttons.
+  static const TextStyle dialogLabelStyle = TextStyle(
+    color: Colors.black,
+    fontSize: 22,
+    fontWeight: FontWeight.w700,
+    height: 1,
+  );
+
   const ImageButton({
     super.key,
     required this.label,

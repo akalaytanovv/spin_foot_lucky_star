@@ -39,6 +39,25 @@ class LetsPlayBody extends StatelessWidget {
     );
   }
 
+  Widget _linkText(String text, VoidCallback? onPressed) {
+    return TextButton(
+      onPressed: onPressed,
+      style: TextButton.styleFrom(
+        minimumSize: Size.zero,
+        padding: EdgeInsets.zero,
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      ),
+      child: Text(
+        text,
+        style: _disclaimerStyle.copyWith(
+          color: Colors.white,
+          decoration: TextDecoration.underline,
+          decorationColor: Colors.white,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -78,25 +97,9 @@ class LetsPlayBody extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   _outlinedText('our '),
-                  TextButton(
-                    onPressed: onTermsPressed,
-                    style: TextButton.styleFrom(
-                      minimumSize: Size.zero,
-                      padding: EdgeInsets.zero,
-                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    ),
-                    child: _outlinedText('Terms'),
-                  ),
+                  _linkText('Terms Of Use', onTermsPressed),
                   _outlinedText(' & '),
-                  TextButton(
-                    onPressed: onPrivacyPressed,
-                    style: TextButton.styleFrom(
-                      minimumSize: Size.zero,
-                      padding: EdgeInsets.zero,
-                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    ),
-                    child: _outlinedText('Privacy Policy'),
-                  ),
+                  _linkText('Privacy Policy', onPrivacyPressed),
                 ],
               ),
             ],

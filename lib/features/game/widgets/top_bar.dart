@@ -13,9 +13,7 @@ class TopBar extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: LayoutBuilder(
         builder: (context, constraints) {
-          final totalWidth = constraints.maxWidth;
-          final balanceWidth = totalWidth / 3;
-          final buttonsWidth = totalWidth * 2 / 3;
+          final balanceWidth = constraints.maxWidth / 3;
 
           return Row(
             children: [
@@ -44,25 +42,17 @@ class TopBar extends StatelessWidget {
                   ],
                 ),
               ),
-              SizedBox(
-                width: buttonsWidth,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    TopBarButton(asset: 'assets/shop.png', tooltip: 'Shop', onPressed: () {}),
-                    TopBarButton(asset: 'assets/withdraw.png', tooltip: 'Ball', onPressed: () {}),
-                    TopBarButton(
-                      asset: 'assets/wheel.png',
-                      tooltip: 'Wheel',
-                      onPressed: () => Navigator.pushNamed(context, '/wheel'),
-                    ),
-                    TopBarButton(
-                      asset: 'assets/settings.png',
-                      tooltip: 'Settings',
-                      onPressed: () => Navigator.pushNamed(context, '/settings'),
-                    ),
-                  ],
-                ),
+              const Spacer(),
+              TopBarButton(
+                asset: 'assets/wheel.png',
+                tooltip: 'Wheel',
+                onPressed: () => Navigator.pushNamed(context, '/wheel'),
+              ),
+              const SizedBox(width: 18),
+              TopBarButton(
+                asset: 'assets/settings.png',
+                tooltip: 'Settings',
+                onPressed: () => Navigator.pushNamed(context, '/settings'),
               ),
             ],
           );

@@ -116,7 +116,12 @@ class _AutoPlayDialogState extends State<_AutoPlayDialog> {
                 ),
 
                 const SizedBox(height: 14),
-                ImageButton(label: 'Start', height: 50, onPressed: _start),
+                ImageButton(
+                  label: 'Start',
+                  height: 50,
+                  labelStyle: ImageButton.dialogLabelStyle,
+                  onPressed: _start,
+                ),
               ],
             ),
           ),

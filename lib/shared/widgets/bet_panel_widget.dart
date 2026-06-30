@@ -126,7 +126,7 @@ class _BetPanelWidgetState extends State<BetPanelWidget> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            _buildButton(label: '−', delta: -1, disabled: isRunning),
+            _buildButton(label: '−', delta: -Constants.betStep, disabled: isRunning),
             const SizedBox(width: 12),
             SizedBox(
               width: 100,
@@ -151,7 +151,7 @@ class _BetPanelWidgetState extends State<BetPanelWidget> {
               ),
             ),
             const SizedBox(width: 12),
-            _buildButton(label: '+', delta: 1, disabled: isRunning),
+            _buildButton(label: '+', delta: Constants.betStep, disabled: isRunning),
           ],
         ),
       ),
