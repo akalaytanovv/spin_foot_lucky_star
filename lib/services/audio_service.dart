@@ -12,7 +12,6 @@ class AudioService with WidgetsBindingObserver {
   static const backgroundAsset = 'audio/bg.mp3';
   static const winAsset = 'audio/win.mp3';
   static const loseAsset = 'audio/lose.mp3';
-  static const spinAsset = 'audio/spin.mp3';
 
   static const assetsToPreload = [backgroundAsset, winAsset, loseAsset];
 
@@ -184,7 +183,6 @@ class AudioService with WidgetsBindingObserver {
     _spinVolume = PrefsService.instance.soundVolume;
     await _spinPlayer.setReleaseMode(ReleaseMode.loop);
     await _spinPlayer.setVolume(_spinVolume);
-    await _spinPlayer.play(AssetSource(spinAsset));
   }
 
   /// Fades the spin sound out from its current volume over ~500 ms, then stops.
