@@ -12,6 +12,7 @@ import 'features/game/game_screen.dart';
 import 'features/lets_play/lets_play_screen.dart';
 import 'features/settings/settings_provider.dart';
 import 'features/settings/settings_screen.dart';
+import 'features/splash/splash_provider.dart';
 import 'features/splash/splash_screen.dart';
 import 'features/wheel/wheel_provider.dart';
 import 'features/wheel/wheel_screen.dart';
@@ -78,6 +79,7 @@ class SpinFootApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
+        ChangeNotifierProvider(create: (_) => SplashProvider()),
         ChangeNotifierProvider(create: (_) => GameProvider()),
         ChangeNotifierProvider(create: (_) => WheelProvider()),
         ChangeNotifierProvider(create: (_) => SettingsProvider()),

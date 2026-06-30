@@ -8,8 +8,22 @@ import 'widgets/ball_widget.dart';
 import 'widgets/bet_control_panel/bet_control_panel.dart';
 import 'widgets/top_bar.dart';
 
-class GameScreen extends StatelessWidget {
+class GameScreen extends StatefulWidget {
   const GameScreen({super.key});
+
+  @override
+  State<GameScreen> createState() => _GameScreenState();
+}
+
+class _GameScreenState extends State<GameScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      context.read<GameProvider>().onScreenOpened();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {

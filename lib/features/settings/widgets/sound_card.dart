@@ -13,9 +13,7 @@ class SoundCard extends StatelessWidget {
 
     return Stack(
       children: [
-        Positioned.fill(
-          child: Image.asset('assets/card_bg_medium.png', fit: BoxFit.fill),
-        ),
+        Positioned.fill(child: Image.asset('assets/card_bg_medium.png', fit: BoxFit.fill)),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 35),
           child: Column(
@@ -24,15 +22,13 @@ class SoundCard extends StatelessWidget {
               VolumeSlider(
                 label: 'Sound',
                 value: settings.soundVolume,
-                onChanged: (v) =>
-                    context.read<SettingsProvider>().setSoundVolume(v),
+                onChanged: (v) => context.read<SettingsProvider>().setSoundVolume(v),
               ),
               const SizedBox(height: 25),
               VolumeSlider(
                 label: 'Music',
                 value: settings.musicVolume,
-                onChanged: (v) =>
-                    context.read<SettingsProvider>().setMusicVolume(v),
+                onChanged: (v) => context.read<SettingsProvider>().setMusicVolume(v),
               ),
             ],
           ),

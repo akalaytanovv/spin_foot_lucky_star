@@ -106,6 +106,12 @@ class GameProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  // ── Screen lifecycle ──────────────────────────────────────────────────────
+
+  void onScreenOpened() {
+    AudioService.instance.playBackground(AudioService.backgroundAsset);
+  }
+
   // ── Round ─────────────────────────────────────────────────────────────────
 
   void startRound() {

@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../services/ad_service.dart';
-import '../../services/audio_service.dart';
 import '../../shared/widgets/app_background.dart';
 import '../game/game_provider.dart';
 import 'wheel_provider.dart';
@@ -50,7 +49,7 @@ class _WheelScreenState extends State<WheelScreen> with SingleTickerProviderStat
     if (status != AnimationStatus.completed) return;
     if (!mounted) return;
 
-    AudioService.instance.stopSpin();
+    context.read<WheelProvider>().onSpinAnimationComplete();
     setState(() {
       _currentAngle = _rotationAnimation.value % (2 * pi);
       _isAnimating = false;
@@ -125,7 +124,7 @@ class _WheelScreenState extends State<WheelScreen> with SingleTickerProviderStat
     _controller.reset();
     setState(() => _isAnimating = true);
     _controller.forward();
-    AudioService.instance.playSpin();
+    context.read<WheelProvider>().onSpinAnimationStart();
   }
 
   void _showPrizeSnackBar() {
