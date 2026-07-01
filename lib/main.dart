@@ -79,6 +79,7 @@ class SpinFootApp extends StatelessWidget {
         ),
         initialRoute: initError != null ? AppRoutes.error : AppRoutes.splash,
         onGenerateRoute: AppRouter(initError: initError).onGenerateRoute,
+        navigatorObservers: [appRouteObserver],
       ),
     );
   }

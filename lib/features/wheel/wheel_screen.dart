@@ -47,7 +47,6 @@ class _WheelScreenState extends State<WheelScreen> with SingleTickerProviderStat
     if (status != AnimationStatus.completed) return;
     if (!mounted) return;
 
-    context.read<WheelProvider>().onSpinAnimationComplete();
     setState(() {
       _currentAngle = _rotationAnimation.value % (2 * pi);
       _isAnimating = false;
@@ -96,7 +95,6 @@ class _WheelScreenState extends State<WheelScreen> with SingleTickerProviderStat
     _controller.reset();
     setState(() => _isAnimating = true);
     _controller.forward();
-    context.read<WheelProvider>().onSpinAnimationStart();
   }
 
   void _showPrizeSnackBar() {

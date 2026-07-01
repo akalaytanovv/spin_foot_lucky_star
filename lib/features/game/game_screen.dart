@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../core/app_router.dart';
+import '../../services/audio_service.dart';
 import '../../shared/widgets/app_background.dart';
 import '../../shared/widgets/result_overlay_widget.dart';
 import 'game_provider.dart';
@@ -15,7 +17,7 @@ class GameScreen extends StatefulWidget {
   State<GameScreen> createState() => _GameScreenState();
 }
 
-class _GameScreenState extends State<GameScreen> {
+class _GameScreenState extends State<GameScreen> with RouteAware {
   @override
   void initState() {
     super.initState();
@@ -23,6 +25,35 @@ class _GameScreenState extends State<GameScreen> {
       if (!mounted) return;
       context.read<GameProvider>().onScreenOpened();
     });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final route = ModalRoute.of(context);
+    if (route != null) {
+      appRouteObserver.subscribe(this, route);
+    }
+  }
+
+  @override
+  void dispose() {
+    appRouteObserver.unsubscribe(this);
+    AudioService.instance.stopSpin(fade: false);
+    super.dispose();
+  }
+
+  @override
+  void didPushNext() {
+    AudioService.instance.stopSpin(fade: false);
+  }
+
+  @override
+  void didPopNext() {
+    if (!mounted) return;
+    if (context.read<GameProvider>().state == RoundState.running) {
+      AudioService.instance.playSpin();
+    }
   }
 
   @override

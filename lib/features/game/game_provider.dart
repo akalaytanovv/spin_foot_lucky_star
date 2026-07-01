@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:math';
 
+// ignore_for_file: discarded_futures
+
 import 'package:flutter/foundation.dart';
 import 'package:vibration/vibration.dart';
 
@@ -133,7 +135,7 @@ class GameProvider extends ChangeNotifier {
 
   // ── Round ─────────────────────────────────────────────────────────────────
 
-  void startRound() {
+  Future<void> startRound() async {
     if (_state != RoundState.idle) return;
     _effectiveBet = _x2Mode ? (_bet * 2).clamp(Constants.minBet, maxBet) : _bet;
     if (_balance < _effectiveBet) {
@@ -148,7 +150,9 @@ class GameProvider extends ChangeNotifier {
     _crashPoint = _generateCrashPoint();
     _lastWin = null;
 
-    AudioService.instance.playSpin();
+    // setVolume on an already-running player — faster than play().
+    // Await before notifyListeners() so audio and animation start together.
+    await AudioService.instance.playSpin();
     AnalyticsService.instance.gameStart();
     notifyListeners();
 

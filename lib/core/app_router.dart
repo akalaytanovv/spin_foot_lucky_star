@@ -18,6 +18,8 @@ abstract final class AppRoutes {
   static const preGameRoutes = {splash, letsPlay};
 }
 
+final RouteObserver<ModalRoute<void>> appRouteObserver = RouteObserver<ModalRoute<void>>();
+
 class AppRouter {
   AppRouter({required this.initError});
 

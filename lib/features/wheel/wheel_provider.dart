@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:vibration/vibration.dart';
 
 import '../../core/constants.dart';
-import '../../services/audio_service.dart';
 import '../../services/prefs_service.dart';
 import '../game/game_provider.dart';
 
@@ -84,14 +83,6 @@ class WheelProvider extends ChangeNotifier {
     }
 
     notifyListeners();
-  }
-
-  void onSpinAnimationStart() {
-    AudioService.instance.playSpin();
-  }
-
-  void onSpinAnimationComplete() {
-    AudioService.instance.stopSpin();
   }
 
   void onSpinComplete(GameProvider game) {
