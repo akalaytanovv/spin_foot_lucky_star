@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:device_preview/device_preview.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -59,15 +58,8 @@ void main() async {
       initError = e.toString();
     }
 
-    runApp(_wrapApp(SpinFootApp(initError: initError)));
+    runApp(SpinFootApp(initError: initError));
   }, (error, stack) => _logError(error, stack));
-}
-
-Widget _wrapApp(Widget app) {
-  if (kDebugMode) {
-    return DevicePreview(enabled: true, builder: (_) => app);
-  }
-  return app;
 }
 
 class SpinFootApp extends StatelessWidget {
@@ -87,9 +79,6 @@ class SpinFootApp extends StatelessWidget {
       child: MaterialApp(
         title: 'Spin Foot Lucky Star',
         debugShowCheckedModeBanner: false,
-        useInheritedMediaQuery: kDebugMode,
-        locale: kDebugMode ? DevicePreview.locale(context) : null,
-        builder: kDebugMode ? DevicePreview.appBuilder : null,
         theme: ThemeData(
           textTheme: GoogleFonts.puritanTextTheme().apply(bodyColor: Colors.white, displayColor: Colors.white),
         ),
