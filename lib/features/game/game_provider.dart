@@ -106,6 +106,25 @@ class GameProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  int calculateBoostBonus(int baseWin, int multiplier) => baseWin * multiplier;
+
+  int pickBoostMultiplier() {
+    final list = Constants.boostMultipliers;
+    return list[Random().nextInt(list.length)];
+  }
+
+  Future<void> claimBoostReward(int bonus) async {
+    addToBalance(bonus);
+    if (bonus > 0) {
+      await PrefsService.instance.addLeaderboardEntry(bonus);
+    }
+    if (_balance < Constants.lowBalanceThreshold) {
+      _balance += Constants.lowBalanceBonus;
+      await PrefsService.instance.setBalance(_balance);
+      notifyListeners();
+    }
+  }
+
   // ── Screen lifecycle ──────────────────────────────────────────────────────
 
   void onScreenOpened() {

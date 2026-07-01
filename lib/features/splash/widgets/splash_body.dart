@@ -5,6 +5,10 @@ class SplashBody extends StatelessWidget {
 
   const SplashBody({super.key, required this.animation});
 
+  static const _titleStyle = TextStyle(fontFamily: 'Roboto', fontSize: 36, fontWeight: FontWeight.w700);
+  static const _subtitleStyle = TextStyle(fontFamily: 'Roboto', fontSize: 24, fontWeight: FontWeight.w400);
+  static const _loadingStyle = TextStyle(fontFamily: 'Roboto', fontSize: 24, fontWeight: FontWeight.w700);
+
   Widget _borderedText(String text, TextStyle style) {
     return Stack(
       children: [
@@ -35,9 +39,9 @@ class SplashBody extends StatelessWidget {
               children: [
                 Image.asset('assets/logo.png', width: screenWidth / 2),
                 const SizedBox(height: 16),
-                _borderedText('Welcome', const TextStyle(fontSize: 36, fontWeight: FontWeight.w700)),
+                _borderedText('Welcome', _titleStyle),
                 const SizedBox(height: 10),
-                _borderedText("Let's get started", const TextStyle(fontSize: 24, fontWeight: FontWeight.w400)),
+                _borderedText("Let's get started", _subtitleStyle),
               ],
             ),
           ),
@@ -45,7 +49,7 @@ class SplashBody extends StatelessWidget {
             padding: const EdgeInsets.only(bottom: 48, left: 50, right: 50),
             child: Column(
               children: [
-                _borderedText('Loading...', const TextStyle(fontSize: 24, fontWeight: FontWeight.w700)),
+                _borderedText('Loading...', _loadingStyle),
                 const SizedBox(height: 8),
                 AnimatedBuilder(
                   animation: animation,

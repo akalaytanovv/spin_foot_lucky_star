@@ -7,6 +7,7 @@ class WheelWidget extends StatelessWidget {
   final AnimationController controller;
   final Animation<double> rotationAnimation;
   final List<String> labels;
+  final Widget? centerWidget;
 
   const WheelWidget({
     super.key,
@@ -14,6 +15,7 @@ class WheelWidget extends StatelessWidget {
     required this.controller,
     required this.rotationAnimation,
     required this.labels,
+    this.centerWidget,
   });
 
   @override
@@ -36,7 +38,7 @@ class WheelWidget extends StatelessWidget {
           Image.asset('assets/wheel_outside.png', width: size, height: size, fit: BoxFit.contain),
           // Layer 2 — spinning segments
           AnimatedBuilder(
-            animation: controller,
+            animation: rotationAnimation,
             builder: (context, _) {
               return CustomPaint(
                 size: Size(segmentsSize, segmentsSize),
@@ -45,7 +47,7 @@ class WheelWidget extends StatelessWidget {
             },
           ),
           // Layer 3 — center hub (static)
-          Image.asset('assets/wheel_inside.png', width: hubSize, height: hubSize, fit: BoxFit.contain),
+          centerWidget ?? Image.asset('assets/wheel_inside.png', width: hubSize, height: hubSize, fit: BoxFit.contain),
           // Layer 4 — pointer triangle at top (static, above everything)
           Positioned(
             top: (size - segmentsSize) / 2 - pointerSize * 0.92,
