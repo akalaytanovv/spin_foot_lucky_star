@@ -10,10 +10,11 @@ class AudioService with WidgetsBindingObserver {
   static final AudioService instance = AudioService._();
 
   static const backgroundAsset = 'audio/bg.mp3';
+  static const spinAsset = 'audio/spin.mp3';
   static const winAsset = 'audio/win.mp3';
   static const loseAsset = 'audio/lose.mp3';
 
-  static const assetsToPreload = [backgroundAsset, winAsset, loseAsset];
+  static const assetsToPreload = [backgroundAsset, spinAsset, winAsset, loseAsset];
 
   late AudioPlayer _bgPlayer;
   late AudioPlayer _spinPlayer;
@@ -202,18 +203,33 @@ class AudioService with WidgetsBindingObserver {
   Future<void> playSpin() async {
     if (!_initialized) return;
     _fadeTimer?.cancel();
-    // Read the current user preference so each spin starts at the correct level.
     _spinVolume = PrefsService.instance.soundVolume;
+
+    if (_spinPlayer.state == PlayerState.playing) {
+      await _spinPlayer.setVolume(_spinVolume);
+      return;
+    }
+
     await _spinPlayer.setReleaseMode(ReleaseMode.loop);
     await _spinPlayer.setVolume(_spinVolume);
+    await _spinPlayer.play(AssetSource(spinAsset));
   }
 
-  /// Fades the spin sound out from its current volume over ~500 ms, then stops.
-  Future<void> stopSpin() async {
+  /// Fades the spin sound out from its current volume over 150 ms, then stops.
+  Future<void> stopSpin({bool fade = true}) async {
     if (!_initialized) return;
     _fadeTimer?.cancel();
+
+    if (!fade) {
+      await _spinPlayer.stop();
+      final restored = PrefsService.instance.soundVolume;
+      _spinVolume = restored;
+      await _spinPlayer.setVolume(restored);
+      return;
+    }
+
     final startVolume = _spinVolume;
-    const steps = 10;
+    const steps = 3;
     const stepDuration = Duration(milliseconds: 50);
     int step = 0;
 
