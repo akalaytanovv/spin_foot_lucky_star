@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../core/app_router.dart';
 import '../../../shared/widgets/app_background.dart';
 import 'splash_provider.dart';
 import 'widgets/splash_body.dart';
@@ -31,7 +32,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
     ]);
 
     if (mounted) {
-      Navigator.pushReplacementNamed(context, '/lets_play');
+      Navigator.pushReplacementNamed(context, AppRoutes.letsPlay);
     }
   }
 

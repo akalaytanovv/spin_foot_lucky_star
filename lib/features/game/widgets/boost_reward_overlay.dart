@@ -9,10 +9,10 @@ import '../../wheel/widgets/wheel_widget.dart';
 import '../game_provider.dart';
 
 class BoostRewardOverlay extends StatefulWidget {
-  const BoostRewardOverlay({super.key, required this.baseWin, required this.onComplete});
+  const BoostRewardOverlay({super.key, required this.baseWin, required this.onAdComplete});
 
   final int baseWin;
-  final VoidCallback onComplete;
+  final void Function(int bonus) onAdComplete;
 
   @override
   State<BoostRewardOverlay> createState() => _BoostRewardOverlayState();
@@ -29,6 +29,7 @@ class _BoostRewardOverlayState extends State<BoostRewardOverlay> with SingleTick
   double _currentAngle = 0;
   bool _isSpinning = true;
   bool _isClaimingAd = false;
+  bool _completed = false;
 
   static final List<String> _labels = Constants.boostMultipliers.map((m) => 'x$m').toList();
 
@@ -86,7 +87,8 @@ class _BoostRewardOverlayState extends State<BoostRewardOverlay> with SingleTick
   Future<void> _finishClaim() async {
     await context.read<GameProvider>().claimBoostReward(_bonus);
     if (!mounted) return;
-    widget.onComplete();
+    _completed = true;
+    widget.onAdComplete(_bonus);
   }
 
   void _claimWithAd() {
@@ -105,7 +107,7 @@ class _BoostRewardOverlayState extends State<BoostRewardOverlay> with SingleTick
         _finishClaim();
       },
       onAdFinished: () {
-        if (!mounted) return;
+        if (!mounted || _completed) return;
         setState(() => _isClaimingAd = false);
       },
     );
@@ -113,6 +115,9 @@ class _BoostRewardOverlayState extends State<BoostRewardOverlay> with SingleTick
 
   @override
   void dispose() {
+    if (_isClaimingAd && !_completed) {
+      AdService.instance.cancelAdSession();
+    }
     _controller.removeStatusListener(_onAnimationStatus);
     _controller.dispose();
     super.dispose();

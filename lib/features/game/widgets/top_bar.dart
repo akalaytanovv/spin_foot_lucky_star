@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/app_router.dart';
 import 'top_bar_button.dart';
 
 class TopBar extends StatelessWidget {
@@ -46,13 +47,13 @@ class TopBar extends StatelessWidget {
               TopBarButton(
                 asset: 'assets/wheel.png',
                 tooltip: 'Wheel',
-                onPressed: () => Navigator.pushNamed(context, '/wheel'),
+                onPressed: () => Navigator.pushNamed(context, AppRoutes.wheel),
               ),
               const SizedBox(width: 18),
               TopBarButton(
                 asset: 'assets/settings.png',
                 tooltip: 'Settings',
-                onPressed: () => Navigator.pushNamed(context, '/settings'),
+                onPressed: () => Navigator.pushNamed(context, AppRoutes.settings),
               ),
             ],
           );

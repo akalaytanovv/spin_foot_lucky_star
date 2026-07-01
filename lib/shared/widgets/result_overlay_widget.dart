@@ -21,6 +21,8 @@ class _ResultOverlayWidgetState extends State<ResultOverlayWidget> with SingleTi
   bool _showBoostButton = false;
   bool _showBoostOverlay = false;
   bool _boostStarted = false;
+  bool _showBoostFinalWin = false;
+  int _boostBonusAmount = 0;
 
   AnimationController? _pulse;
   Animation<double>? _pulseScale;
@@ -74,13 +76,21 @@ class _ResultOverlayWidgetState extends State<ResultOverlayWidget> with SingleTi
     });
   }
 
-  void _onBoostComplete() {
+  void _onBoostAdComplete(int bonus) {
     if (!mounted) return;
-    context.read<GameProvider>().resetRound();
+    setState(() {
+      _showBoostOverlay = false;
+      _showBoostFinalWin = true;
+      _boostBonusAmount = bonus;
+      _visible = true;
+    });
+    _timer?.cancel();
+    _timer = Timer(Constants.resultOverlayDuration, _dismiss);
   }
 
   void _onBackgroundTap() {
-    if (_showBoostOverlay || _boostStarted) return;
+    if (_showBoostOverlay) return;
+    if (_boostStarted && !_showBoostFinalWin) return;
     _dismiss();
   }
 
@@ -88,11 +98,12 @@ class _ResultOverlayWidgetState extends State<ResultOverlayWidget> with SingleTi
   Widget build(BuildContext context) {
     final game = context.watch<GameProvider>();
     final isWin = game.state == RoundState.cashedOut;
-    final amount = game.lastWin ?? 0;
-    final skipBoost = isWin && game.autoPlay;
+    final winAmount = game.lastWin ?? 0;
+    final displayAmount = _showBoostFinalWin ? _boostBonusAmount : winAmount;
+    final skipBoost = isWin && game.autoPlay && !_showBoostFinalWin;
 
     final label = isWin ? 'You win!' : 'CRASH';
-    final amountText = isWin ? '+$amount' : '-${game.bet}';
+    final amountText = isWin ? '+$displayAmount' : '-${game.bet}';
 
     final borderColor = isWin ? const Color(0xFFA9FF09) : const Color(0xFFFF5252);
     final labelColor = isWin ? const Color(0xFFFFE5B4) : const Color(0xFFFF5252);
@@ -172,7 +183,7 @@ class _ResultOverlayWidgetState extends State<ResultOverlayWidget> with SingleTi
                                   Image.asset('assets/coin.png', width: 32, height: 32),
                                 ],
                               ),
-                              if (_showBoostButton && !skipBoost) ...[
+                              if (_showBoostButton && !skipBoost && !_showBoostFinalWin) ...[
                                 const SizedBox(height: 20),
                                 ScaleTransition(
                                   scale: _pulseScale ?? const AlwaysStoppedAnimation(1.0),
@@ -189,7 +200,7 @@ class _ResultOverlayWidgetState extends State<ResultOverlayWidget> with SingleTi
         ),
         if (_showBoostOverlay)
           Positioned.fill(
-            child: BoostRewardOverlay(baseWin: amount, onComplete: _onBoostComplete),
+            child: BoostRewardOverlay(baseWin: winAmount, onAdComplete: _onBoostAdComplete),
           ),
       ],
     );

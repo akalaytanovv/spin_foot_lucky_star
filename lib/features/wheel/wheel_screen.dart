@@ -3,12 +3,11 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../services/ad_service.dart';
 import '../../shared/widgets/app_background.dart';
 import '../game/game_provider.dart';
 import 'wheel_provider.dart';
 import 'widgets/spin_button.dart';
-import 'widgets/watch_claim_overlay.dart';
+import 'widgets/watch_claim_dialog.dart';
 import 'widgets/wheel_widget.dart';
 
 class WheelScreen extends StatefulWidget {
@@ -24,8 +23,7 @@ class _WheelScreenState extends State<WheelScreen> with SingleTickerProviderStat
 
   double _currentAngle = 0;
   bool _isAnimating = false;
-  bool _showWatchClaim = false;
-  bool _isClaimingAd = false;
+  bool _isClaimDialogOpen = false;
 
   // Center of each segment in radians (0 = top, clockwise).
   // Derived from prize count so it stays in sync if the table changes.
@@ -53,8 +51,15 @@ class _WheelScreenState extends State<WheelScreen> with SingleTickerProviderStat
     setState(() {
       _currentAngle = _rotationAnimation.value % (2 * pi);
       _isAnimating = false;
-      _showWatchClaim = true;
     });
+    _showWatchClaimDialog();
+  }
+
+  Future<void> _showWatchClaimDialog() async {
+    setState(() => _isClaimDialogOpen = true);
+    await showWatchClaimDialog(context, onComplete: _finishClaim);
+    if (!mounted) return;
+    setState(() => _isClaimDialogOpen = false);
   }
 
   void _finishClaim() {
@@ -62,41 +67,8 @@ class _WheelScreenState extends State<WheelScreen> with SingleTickerProviderStat
     _showPrizeSnackBar();
   }
 
-  void _claimSkip() {
-    if (_isClaimingAd) return;
-    setState(() => _showWatchClaim = false);
-    _finishClaim();
-  }
-
-  void _claimWithAd() {
-    if (_isClaimingAd) return;
-
-    if (!AdService.instance.isReady) {
-      setState(() {
-        _showWatchClaim = false;
-        _isClaimingAd = false;
-      });
-      _finishClaim();
-      return;
-    }
-
-    setState(() => _isClaimingAd = true);
-
-    AdService.instance.showRewarded(
-      onRewarded: () {
-        if (!mounted) return;
-        setState(() => _showWatchClaim = false);
-        _finishClaim();
-      },
-      onAdFinished: () {
-        if (!mounted) return;
-        setState(() => _isClaimingAd = false);
-      },
-    );
-  }
-
   void _onSpinPressed() {
-    if (_isAnimating || _showWatchClaim || _isClaimingAd) return;
+    if (_isAnimating || _isClaimDialogOpen) return;
     final wheel = context.read<WheelProvider>();
     wheel.spin();
     _startAnimation(wheel.spinToIndex);
@@ -164,38 +136,26 @@ class _WheelScreenState extends State<WheelScreen> with SingleTickerProviderStat
         elevation: 0,
       ),
       child: SafeArea(
-        child: Stack(
+        child: Column(
           children: [
-            Column(
-              children: [
-                Expanded(
-                  child: Center(
-                    child: LayoutBuilder(
-                      builder: (context, constraints) {
-                        final size = min(constraints.maxWidth, constraints.maxHeight) * 0.92;
-                        return WheelWidget(
-                          size: size,
-                          controller: _controller,
-                          rotationAnimation: _rotationAnimation,
-                          labels: _labels,
-                        );
-                      },
-                    ),
-                  ),
+            Expanded(
+              child: Center(
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    final size = min(constraints.maxWidth, constraints.maxHeight) * 0.92;
+                    return WheelWidget(
+                      size: size,
+                      controller: _controller,
+                      rotationAnimation: _rotationAnimation,
+                      labels: _labels,
+                    );
+                  },
                 ),
-                const SizedBox(height: 16),
-                SpinButton(
-                  isAnimating: _isAnimating,
-                  isBlocked: _showWatchClaim || _isClaimingAd,
-                  onPressed: _onSpinPressed,
-                ),
-                const SizedBox(height: 100),
-              ],
-            ),
-            if (_showWatchClaim)
-              Positioned.fill(
-                child: WatchClaimOverlay(onClaim: _claimWithAd, onSkip: _claimSkip, isClaiming: _isClaimingAd),
               ),
+            ),
+            const SizedBox(height: 16),
+            SpinButton(isAnimating: _isAnimating, isBlocked: _isClaimDialogOpen, onPressed: _onSpinPressed),
+            const SizedBox(height: 100),
           ],
         ),
       ),

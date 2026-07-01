@@ -26,6 +26,9 @@ class AudioService with WidgetsBindingObserver {
   /// Reset on resume or on any intentional stop/play.
   bool _wasPlayingBeforePause = false;
 
+  /// True when music was playing before an overlay (e.g. rewarded ad) paused it.
+  bool _wasPlayingBeforeOverlayPause = false;
+
   /// Last asset passed to [playBackground]. Used to restart the player after
   /// Android kills the audio stream entirely instead of just pausing it.
   String? _lastBgAsset;
@@ -147,6 +150,26 @@ class AudioService with WidgetsBindingObserver {
     }
   }
 
+  /// Pauses background music while a full-screen overlay (e.g. rewarded ad) is shown.
+  Future<void> pauseBackgroundForOverlay() async {
+    if (!_initialized) return;
+    _wasPlayingBeforeOverlayPause = _bgPlayer.state == PlayerState.playing;
+    if (_wasPlayingBeforeOverlayPause) {
+      await _bgPlayer.pause();
+    }
+  }
+
+  /// Resumes background music after [pauseBackgroundForOverlay] if it was playing.
+  Future<void> resumeBackgroundAfterOverlay() async {
+    if (!_initialized || !_wasPlayingBeforeOverlayPause) return;
+    _wasPlayingBeforeOverlayPause = false;
+    if (_bgPlayer.state == PlayerState.paused) {
+      await _bgPlayer.resume();
+    } else if (_lastBgAsset != null) {
+      await playBackground(_lastBgAsset!);
+    }
+  }
+
   // ── FX ───────────────────────────────────────────────────────────────────
 
   Future<void> playWin() => _playFx(winAsset);
@@ -240,6 +263,7 @@ class AudioService with WidgetsBindingObserver {
     _fadeTimer?.cancel();
     _fadeTimer = null;
     _wasPlayingBeforePause = false;
+    _wasPlayingBeforeOverlayPause = false;
     _lastBgAsset = null;
     _assetsPreloaded = false;
 
